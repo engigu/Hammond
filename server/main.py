@@ -43,6 +43,7 @@ class MainHandler(BaseRequestHandler):
         content = self.get_body_argument('content')
         if not (title and content):
             raise Exception('params error')
+
         self.finish({'title': title, 'content': content})
 
 
