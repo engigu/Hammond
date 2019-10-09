@@ -1,8 +1,14 @@
+# -*- coding: utf-8 -*-
 import importlib
 import inspect
 import os
 
-from celery_senders.base_sender import BaseSender as Base
+from celery import Celery
+from base_sender import BaseSender as Base
+
+
+app = Celery('sender')                                # 创建 Celery 实例
+app.config_from_object('server.celery_senders.celery_config')   # 通过 Celery 实例加载配置模块
 
 
 def load_module(module_path, file_path, prefix):
@@ -36,6 +42,7 @@ def load_module(module_path, file_path, prefix):
     files = [i for i in os.listdir(module_file_path) if i.startswith(prefix)]
     print(files)
     if module_path == '.':
+        print(666666)
         modules = {
             get_site_name(i): importlib.import_module('{}'.format(i.split('.py')[0]))
             for i in files
@@ -45,9 +52,9 @@ def load_module(module_path, file_path, prefix):
             get_site_name(i): importlib.import_module('{}.{}'.format(module_path, i.split('.py')[0]))
             for i in files
         }
+
+    print(77777)
     spiders_dicts = {k: getattr(v, '__dict__') for k, v in modules.items()}
+    print(888888)
     return {k: i for k, v in spiders_dicts.items() for i in v.values() if valid(i)}
 
-
-if __name__ == '__main__':
-    pass

@@ -8,9 +8,9 @@ from core.utils import load_module
 
 tornado.log.enable_pretty_logging()
 
-ALL_SENDERS = load_module('senders', __file__, 'sd_')
+ALL_SENDERS = load_module('celery_senders', __file__, 'sd_')
 ALL_SENDERS = {v.name: v for k, v in ALL_SENDERS.items()}
-logging.info(f'load senders: {str(ALL_SENDERS)}')
+logging.info(f'load celery_senders: {str(ALL_SENDERS)}')
 
 
 class BaseRequestHandler(tornado.web.RequestHandler):

@@ -4,7 +4,8 @@
 #
 #
 #
-#
+import os
+ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
 #
 # 各种账号的配置
 ###########  新浪邮箱  ############

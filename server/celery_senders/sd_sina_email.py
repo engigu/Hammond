@@ -8,7 +8,7 @@ from email.mime.text import MIMEText
 from email.utils import parseaddr, formataddr
 import smtplib
 
-from senders.base_sender import BaseSender
+from celery_senders.base_sender import BaseSender
 from config import SINA_SMTP_USER, SINA_SMTP_PASS, SINA_SMTP_RECEIVERS
 
 
