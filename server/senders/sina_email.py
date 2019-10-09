@@ -1,14 +1,13 @@
 # coding: utf-8
 # sayheya@qq.com
 # 2019-05-29
-# from flask import Flask, render_template, jsonify, request
-import base64
 import time
 import traceback
 from email.header import Header
 from email.mime.text import MIMEText
 from email.utils import parseaddr, formataddr
 import smtplib
+
 from server.senders.base_sender import BaseSender
 from server.config import SINA_SMTP_USER, SINA_SMTP_PASS, SINA_SMTP_RECEIVERS
 
@@ -20,6 +19,7 @@ class SinaSmtpSender(BaseSender):
         self.user = self.decode_base64(SINA_SMTP_USER)
         self.passwd = self.decode_base64(SINA_SMTP_PASS)
         self.receivers = [self.decode_base64(i) for i in SINA_SMTP_RECEIVERS]
+        super(SinaSmtpSender, self).__init__(*args, **kwargs)
 
     def smtp_sendmail(self, subject, mail_content):
         """SMTP 邮件发送模块
@@ -66,9 +66,13 @@ class SinaSmtpSender(BaseSender):
             smtpObj.login(mail_user, mail_pass)
             smtpObj.sendmail(mail_user, receivers, message.as_string())
             smtpObj.quit()
-            print("has send the mail to {}.".format(' '.join(receivers)))
-        except Exception as err:
-            print("send error！\nerror: " + str(traceback.format_exc()))
+            self.logger.info("has send the mail to {}.".format(' '.join(receivers)))
+        except:
+            self.logger.error("send error！\nerror: " + str(traceback.format_exc()))
 
     def send(self, title, content):
         pass
+
+
+if __name__ == '__main__':
+    pass
