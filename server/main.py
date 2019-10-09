@@ -39,10 +39,12 @@ class MainHandler(BaseRequestHandler):
 
     # @args
     def post(self):
+        way = self.get_body_argument('way')
         title = self.get_body_argument('title')
         content = self.get_body_argument('content')
         if not (title and content):
             raise Exception('params error')
+
 
         self.finish({'title': title, 'content': content})
 
