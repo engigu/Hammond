@@ -48,11 +48,19 @@ class MainHandler(BaseRequestHandler):
         way = self.get_body_argument('way')
         title = self.get_body_argument('title')
         content = self.get_body_argument('content')
-        print(self.request.body)
+        # print(self.request.body)
         if not (title and content):
             raise Exception('params error')
 
-        self.finish({'title': title, 'content': content})
+        if way not in ALL_SENDERS:
+            raise Exception('send way error')
+        try:
+            s = ALL_SENDERS[way]()
+            s.send(title, content)
+            self.finish({'msg': 'ok!'})
+        except Exception as e:
+            logging.exception(e)
+            self.finish({'msg': 'not ok!'})
 
 
 def make_app():

@@ -71,7 +71,7 @@ class SinaSmtpSender(BaseSender):
             self.logger.error("send error！\nerror: " + str(traceback.format_exc()))
 
     def send(self, title, content):
-        pass
+        return self.smtp_sendmail(subject=title, mail_content=content)
 
 
 if __name__ == '__main__':
