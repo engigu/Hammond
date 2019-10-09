@@ -8,8 +8,8 @@ from email.mime.text import MIMEText
 from email.utils import parseaddr, formataddr
 import smtplib
 
-from server.senders.base_sender import BaseSender
-from server.config import SINA_SMTP_USER, SINA_SMTP_PASS, SINA_SMTP_RECEIVERS
+from senders.base_sender import BaseSender
+from config import SINA_SMTP_USER, SINA_SMTP_PASS, SINA_SMTP_RECEIVERS
 
 
 class SinaSmtpSender(BaseSender):

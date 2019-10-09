@@ -1,10 +1,16 @@
-import json
+import logging
 
 import tornado.ioloop
 import tornado.web
 import tornado.log
 
+from core.utils import load_module
+
 tornado.log.enable_pretty_logging()
+
+ALL_SENDERS = load_module('senders', __file__, 'sd_')
+ALL_SENDERS = {v.name: v for k, v in ALL_SENDERS.items()}
+logging.info(f'load senders: {str(ALL_SENDERS)}')
 
 
 class BaseRequestHandler(tornado.web.RequestHandler):
@@ -42,9 +48,9 @@ class MainHandler(BaseRequestHandler):
         way = self.get_body_argument('way')
         title = self.get_body_argument('title')
         content = self.get_body_argument('content')
+        print(self.request.body)
         if not (title and content):
             raise Exception('params error')
-
 
         self.finish({'title': title, 'content': content})
 
