@@ -7,7 +7,8 @@ class BaseSender:
     name = 'BaseSender'
 
     def __init__(self, *args, **kwargs):
-        self.logger = logging.LoggerAdapter(get_logger(), extra={'way': self.name})
+        # self.logger = logging.LoggerAdapter(get_logger(), extra={'way': self.name})
+        self.logger = logging
         pass
 
     def _send(self, *args, **kwargs):

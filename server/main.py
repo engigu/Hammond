@@ -4,14 +4,9 @@ import tornado.ioloop
 import tornado.web
 import tornado.log
 
-from core.utils import load_module
+from celery_senders.sender import send_notice
 
 tornado.log.enable_pretty_logging()
-
-ALL_SENDERS = load_module('celery_senders', __file__, 'sd_')
-ALL_SENDERS = {v.name: v for k, v in ALL_SENDERS.items()}
-logging.info(f'load celery_senders: {str(ALL_SENDERS)}')
-
 
 class BaseRequestHandler(tornado.web.RequestHandler):
     # def prepare(self):
@@ -52,15 +47,14 @@ class MainHandler(BaseRequestHandler):
         if not (title and content):
             raise Exception('params error')
 
-        if way not in ALL_SENDERS:
-            raise Exception('send way error')
-        try:
-            s = ALL_SENDERS[way]()
-            s.send(title, content)
-            self.finish({'msg': 'ok!'})
-        except Exception as e:
-            logging.exception(e)
-            self.finish({'msg': 'not ok!'})
+        # if way not in ALL_SENDERS:
+        #     raise Exception('send way error')
+        # try:
+        #     s = ALL_SENDERS[way]()
+        #     s.send(title, content)
+        send_notice.delay(way, title, content)
+        self.finish({'msg': 'ok!'})
+
 
 
 def make_app():

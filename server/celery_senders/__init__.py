@@ -1,15 +1,15 @@
-# -*- coding: utf-8 -*-
+# # -*- coding: utf-8 -*-
 import importlib
 import inspect
 import os
-
-from celery import Celery
-from base_sender import BaseSender as Base
-
-
-app = Celery('sender')                                # 创建 Celery 实例
-app.config_from_object('server.celery_senders.celery_config')   # 通过 Celery 实例加载配置模块
-
+#
+# from celery import Celery
+from .base_sender import BaseSender as Base
+#
+#
+# app = Celery('sender')                                # 创建 Celery 实例
+# app.config_from_object('celery_config')   # 通过 Celery 实例加载配置模块
+#
 
 def load_module(module_path, file_path, prefix):
     """
@@ -33,16 +33,13 @@ def load_module(module_path, file_path, prefix):
 
     base_path = os.path.dirname(file_path)
     base_path = base_path.replace('\\', '/')  # windows可能一个路径中两种斜杠，统一
-    print(base_path)
     if module_path == '.':
         module_file_path = base_path
     else:
         module_file_path = os.path.join(base_path, os.sep.join(module_path.split('.')))
-    print(module_file_path)
+    # print(module_file_path)
     files = [i for i in os.listdir(module_file_path) if i.startswith(prefix)]
-    print(files)
     if module_path == '.':
-        print(666666)
         modules = {
             get_site_name(i): importlib.import_module('{}'.format(i.split('.py')[0]))
             for i in files
@@ -53,8 +50,6 @@ def load_module(module_path, file_path, prefix):
             for i in files
         }
 
-    print(77777)
     spiders_dicts = {k: getattr(v, '__dict__') for k, v in modules.items()}
-    print(888888)
     return {k: i for k, v in spiders_dicts.items() for i in v.values() if valid(i)}
 
