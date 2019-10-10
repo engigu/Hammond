@@ -43,15 +43,9 @@ class MainHandler(BaseRequestHandler):
         way = self.get_body_argument('way')
         title = self.get_body_argument('title')
         content = self.get_body_argument('content')
-        # print(self.request.body)
         if not (title and content):
             raise Exception('params error')
 
-        # if way not in ALL_SENDERS:
-        #     raise Exception('send way error')
-        # try:
-        #     s = ALL_SENDERS[way]()
-        #     s.send(title, content)
         send_notice.delay(way, title, content)
         self.finish({'msg': 'ok!'})
 
