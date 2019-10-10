@@ -8,6 +8,7 @@ from celery_senders.sender import send_notice
 
 tornado.log.enable_pretty_logging()
 
+
 class BaseRequestHandler(tornado.web.RequestHandler):
     # def prepare(self):
     #     try:
@@ -48,7 +49,6 @@ class MainHandler(BaseRequestHandler):
 
         send_notice.delay(way, title, content)
         self.finish({'msg': 'ok!'})
-
 
 
 def make_app():
