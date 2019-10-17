@@ -6,6 +6,7 @@ from inspect import getfullargspec
 from celery_senders.base_sender import BaseSender as Base
 from config import SEC_KEYS
 
+
 def load_module(module_path, file_path, prefix):
     """
     module_path: 模块路径    foo.boo
@@ -50,7 +51,6 @@ def load_module(module_path, file_path, prefix):
     return {k: i for k, v in spiders_dicts.items() for i in v.values() if valid(i)}
 
 
-
 def args(func):
     # 转换只支持前端交互json格式
     def wrapper(self, *args, **kwargs):
@@ -63,16 +63,22 @@ def args(func):
             # 手动写了注解
             annotation = full_args_spec.annotations.get(arg, None)
             if annotation:
-                obj = annotation(arg_from_front)
-                if isinstance(annotation, (int, float, str)):
-                    v = obj(arg_from_front)
-                elif isinstance(annotation, list):
-                    v = self.get_body_arguments(arg, [])
-                else:  # 未知类型的
-                    v = arg_from_front if arg_from_front else full_args_spec.defaults[index - 1]
+                if arg_from_front:  # 前端已经传参数
+                    if issubclass(annotation, (int, float, str)):
+                        print('*' * 8, arg_from_front)
+                        v = annotation(arg_from_front)
+                    elif isinstance(annotation, list):
+                        v = self.get_body_arguments(arg, [])
+                    else:  # 未知类型的, 统一是str
+                        v = arg_from_front
+                else:  # 前端参数为空,取注解默认值
+                    print(full_args_spec.defaults)
+                    v = full_args_spec.defaults[index]
+                    print('-' * 8, v)
             else:  # 参数没写注解的，入参都是默认str
                 v = arg_from_front
             kwargs[arg] = v
+        print(kwargs)
         return func(self, *args, **kwargs)
 
     return wrapper
@@ -86,8 +92,8 @@ def sec_check(func):
             self.finish({'msg': 'key error, please check!'})
             return
         return func(self, *args, **kwargs)
-    return sec_check_wrapper
 
+    return sec_check_wrapper
 
 
 if __name__ == '__main__':
