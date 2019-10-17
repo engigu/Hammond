@@ -35,7 +35,7 @@ class MainHandler(BaseRequestHandler):
     @sec_check
     @args
     def post(self, way: str = '', title: str = '', content: str = ''):
-        print(way, title, content)
+        # print(way, title, content)
         if not (title and content):
             self.finish({'msg': 'title or content params error!'})
             return

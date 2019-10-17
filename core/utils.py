@@ -67,7 +67,7 @@ def args(func):
                     if issubclass(annotation, (int, float, str)):
                         # print('*' * 8, arg_from_front)
                         v = annotation(arg_from_front)
-                    elif isinstance(annotation, list):
+                    elif issubclass(annotation, list):
                         v = self.get_body_arguments(arg, [])
                     else:  # 未知类型的, 统一是str
                         v = arg_from_front
