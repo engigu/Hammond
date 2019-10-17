@@ -65,7 +65,7 @@ def args(func):
             if annotation:
                 if arg_from_front:  # 前端已经传参数
                     if issubclass(annotation, (int, float, str)):
-                        print('*' * 8, arg_from_front)
+                        # print('*' * 8, arg_from_front)
                         v = annotation(arg_from_front)
                     elif isinstance(annotation, list):
                         v = self.get_body_arguments(arg, [])
@@ -74,11 +74,11 @@ def args(func):
                 else:  # 前端参数为空,取注解默认值
                     print(full_args_spec.defaults)
                     v = full_args_spec.defaults[index]
-                    print('-' * 8, v)
+                    # print('-' * 8, v)
             else:  # 参数没写注解的，入参都是默认str
                 v = arg_from_front
             kwargs[arg] = v
-        print(kwargs)
+        # print(kwargs)
         return func(self, *args, **kwargs)
 
     return wrapper
