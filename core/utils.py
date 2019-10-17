@@ -1,9 +1,10 @@
 import importlib
 import inspect
 import os
+from inspect import getfullargspec
 
 from celery_senders.base_sender import BaseSender as Base
-
+from config import SEC_KEYS
 
 def load_module(module_path, file_path, prefix):
     """
@@ -27,14 +28,14 @@ def load_module(module_path, file_path, prefix):
 
     base_path = os.path.dirname(file_path)
     base_path = base_path.replace('\\', '/')  # windows可能一个路径中两种斜杠，统一
-    print(base_path)
+    # print(base_path)
     if module_path == '.':
         module_file_path = base_path
     else:
         module_file_path = os.path.join(base_path, os.sep.join(module_path.split('.')))
-    print(module_file_path)
+    # print(module_file_path)
     files = [i for i in os.listdir(module_file_path) if i.startswith(prefix)]
-    print(files)
+    # print(files)
     if module_path == '.':
         modules = {
             get_site_name(i): importlib.import_module('{}'.format(i.split('.py')[0]))
@@ -47,6 +48,46 @@ def load_module(module_path, file_path, prefix):
         }
     spiders_dicts = {k: getattr(v, '__dict__') for k, v in modules.items()}
     return {k: i for k, v in spiders_dicts.items() for i in v.values() if valid(i)}
+
+
+
+def args(func):
+    # 转换只支持前端交互json格式
+    def wrapper(self, *args, **kwargs):
+        full_args_spec = getfullargspec(func)
+        # 暂只支持 int str 抓换
+        kwargs = dict()
+        for index, arg in enumerate(full_args_spec.args[1:]):  # args=['self', 'way'] 切片是为了去掉self
+            # 前端传过来的参数
+            arg_from_front = self.get_body_argument(arg, '')
+            # 手动写了注解
+            annotation = full_args_spec.annotations.get(arg, None)
+            if annotation:
+                obj = annotation(arg_from_front)
+                if isinstance(annotation, (int, float, str)):
+                    v = obj(arg_from_front)
+                elif isinstance(annotation, list):
+                    v = self.get_body_arguments(arg, [])
+                else:  # 未知类型的
+                    v = arg_from_front if arg_from_front else full_args_spec.defaults[index - 1]
+            else:  # 参数没写注解的，入参都是默认str
+                v = arg_from_front
+            kwargs[arg] = v
+        return func(self, *args, **kwargs)
+
+    return wrapper
+
+
+# 校验key是否合法
+def sec_check(func):
+    def sec_check_wrapper(self, *args, **kwargs):
+        sec_key = self.get_body_argument('key', '')
+        if sec_key not in SEC_KEYS:
+            self.finish({'msg': 'key error, please check!'})
+            return
+        return func(self, *args, **kwargs)
+    return sec_check_wrapper
+
 
 
 if __name__ == '__main__':

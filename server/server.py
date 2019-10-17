@@ -1,12 +1,19 @@
 import logging
+from inspect import getfullargspec
 
 import tornado.ioloop
 import tornado.web
 import tornado.log
 
 from celery_senders.sender import send_notice
+from config import SERVER_PORT
+from core.utils import args, sec_check, load_module
 
 tornado.log.enable_pretty_logging()
+
+ALL_WAYS = load_module('celery_senders', __file__, 'sd_')
+ALL_WAYS = {v.name: v for k, v in ALL_WAYS.items()}
+print(ALL_WAYS)
 
 
 class BaseRequestHandler(tornado.web.RequestHandler):
@@ -21,31 +28,20 @@ class BaseRequestHandler(tornado.web.RequestHandler):
     pass
 
 
-#
-# def args(func):
-#     def args_wrapper(self, *args, **kwargs):
-#         print(args)
-#         print(kwargs)
-#         print(self)
-#         for k, v in kwargs:
-#             if k in self.json_args:
-#                 kwargs[v] = self.json_args[k]
-#         return func(self, *args, **kwargs)
-#
-#     return args_wrapper
-
-
 class MainHandler(BaseRequestHandler):
     def get(self):
         self.write("Hello, world")
 
-    # @args
-    def post(self):
-        way = self.get_body_argument('way')
-        title = self.get_body_argument('title')
-        content = self.get_body_argument('content')
+    @sec_check
+    @args
+    def post(self, way, title, content):
+        # print(way, title, content)
         if not (title and content):
-            raise Exception('params error')
+            self.finish({'msg': 'title or content params error!'})
+            return
+        if way not in ALL_WAYS:
+            self.finish({'msg': 'way error!'})
+            return
 
         send_notice.delay(way, title, content)
         self.finish({'msg': 'ok!'})
@@ -59,5 +55,6 @@ def make_app():
 
 if __name__ == "__main__":
     app = make_app()
-    app.listen(8888)
+    app.listen(SERVER_PORT)
+    logging.info("Start Success: 0.0.0.0:{}".format(SERVER_PORT))
     tornado.ioloop.IOLoop.current().start()
