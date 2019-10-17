@@ -72,7 +72,7 @@ def args(func):
                     else:  # 未知类型的, 统一是str
                         v = arg_from_front
                 else:  # 前端参数为空,取注解默认值
-                    print(full_args_spec.defaults)
+                    # print(full_args_spec.defaults)
                     v = full_args_spec.defaults[index]
                     # print('-' * 8, v)
             else:  # 参数没写注解的，入参都是默认str
