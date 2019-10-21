@@ -1,0 +1,20 @@
+version: "3.7"
+services:
+  notice_server:
+    build: 
+      context: .
+      dockerfile: tornado_server_dockerfile
+    ports:
+      - "8890:8888"
+    links:
+      - redis
+  
+  celery_server:
+    build: 
+      context: .
+      dockerfile: celery_server_dockerfile
+    links:
+      - redis
+
+  redis:
+    image: "redis:alpine"

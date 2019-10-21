@@ -1,0 +1,6 @@
+FROM python:3.7-alpine
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories \
+	&& pip install  tornado redis requests celery -i https://mirrors.aliyun.com/pypi/simple/
+COPY . /ameng
+WORKDIR /ameng/server/celery_senders
+CMD celery -A sender worker --loglevel=info
