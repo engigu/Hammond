@@ -1,18 +1,14 @@
 version: "3.7"
 services:
   notice_server:
-    build: 
-      context: .
-      dockerfile: tornado_server_dockerfile
+    image: "notice-server"
     ports:
       - "8890:8888"
     links:
       - redis
   
   celery_server:
-    build: 
-      context: .
-      dockerfile: celery_server_dockerfile
+    image: "celery-server"
     links:
       - redis
 
