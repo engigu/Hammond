@@ -16,10 +16,12 @@ logger = get_task_logger(__name__)
 # ALL_SENDERS = {v.name: v for k, v in ALL_SENDERS.items()}
 from celery_senders.sd_sina_email import SinaSmtpSender
 from celery_senders.sd_server_chan import SeverChan
+from celery_senders.sd_ding_talk import DingTalkRobot
 
 ALL_SENDERS = {
     SinaSmtpSender.name: SinaSmtpSender,
-    SeverChan.name: SeverChan
+    SeverChan.name: SeverChan,
+    DingTalkRobot.name: DingTalkRobot
 }
 
 
