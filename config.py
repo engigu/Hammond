@@ -4,25 +4,20 @@ from core.utils import Utils
 
 class Config:
 
-    ROOT_PATH =  os.path.dirname(os.path.abspath(__file__))
-
-    SQLITE_URI =  f'sqlite:///{ROOT_PATH}/sqlite.db'
-
-    PROJECT_NAME = 'cookies_pool'
-
-    COOKIES_KEY_FORMAT = '%(site)s:cookies:%(no)s'
+    PROJECT_NAME = 'Hammond'
 
     ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
-
-    # REDIS_URI = 'redis://192.168.244.128:6379/2'
-    REDIS_URI = 'redis://127.0.0.1:6352/2' if not Utils.run_in_docker() else 'redis://redis:6379/2'
-
-    SLEEP_LOOP_TIME = 5 * 60
-
-    API_SERVER_PORT = 9632
+    BACKEND_REDIS_URI = 'redis://127.0.0.1:6352/2' if not Utils.run_in_docker() else 'redis://redis:6379/2'
+    API_SERVER_PORT = 9643  # flask api port
 
 
+class RedisStoreKeyConfig(Config):
 
+    # string           
+    SEND_MAIL_KEY = 'sina-send-mail-account'
+
+    # hash
+    RECV_MAIL_KEY = 'recv-mail-accounts'
 # #
 # #
 # #

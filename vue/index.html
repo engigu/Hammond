@@ -5,31 +5,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Cookies Page</title>
+    <title>HammondPage</title>
 </head>
-<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="./static/vue.js"></script>
+<script src="./static/axios.min.js"></script>
 
 <body>
-    <div id="site">
+    <div id="main">
+        <div>
+            <input v-model='b64raw'></input>{{ b64encodeValue }}
+        </div>
+        <div id="mail_block">
+            <h4>邮箱配置</h4>
+            <div>
+                <h5>内置邮件帐号配置</h5>
+                <input v-model="send_mail_account"></input>
+                <input v-model="send_mail_password"></input>
+                <button @click="updateSendMail()">修改</button>
+                <h5>邮件收件人配置</h5>
+                <ul>
+                    <input v-model="to_add_mail"></input>
+                    <button @click="addRecvMail(to_add_mail)">新增收件人</button>
+                    <li v-for="(mail_recv_value, mail_recv_key, index) in mail_recvivers" >
+                        <td><span>{{ mail_recv_key }}</span></td>
+                        <td><input type="checkbox" id="checkbox" :checked="mail_recv_value.is_recv" @click="updateRecvMail(mail_recv_key, $event.target.checked)"></td>
+                        <td><button @click="deleteSendMail(mail_recv_key)">删除</button></td>
+                    </li>
+                </ul>
+            </div>
 
-        <table>
-            <tr>
-                <td v-for="col in col_list">{{ col }}</td>
-            </tr>
-
-            <tr v-for="item in list_data">
-                <td> {{ item.key }} </td>
-                <td> {{ item.cookies }} </td>
-                <td> {{ item.modified_at }} </td>
-                <td v-text="item.status?'可用':'不可用'"></td>
-                <td :key="item.no">修改</td>
-                <td :key="item.no">删除</td>
-            </tr>
-
-        </table>
-
-    </div>
+        </div>
+    </div></div>
 </body>
 <script src="./static/main.js"></script>
 </html>
