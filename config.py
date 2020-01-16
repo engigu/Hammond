@@ -18,6 +18,10 @@ class RedisStoreKeyConfig(Config):
 
     # hash
     RECV_MAIL_KEY = 'recv-mail-accounts'
+
+    # hash server酱
+    RECV_SERVERCHAN_KEY = 'recv-serverchan-accounts'
+
 # #
 # #
 # #

@@ -16,7 +16,7 @@
             <input v-model='b64raw'></input>{{ b64encodeValue }}
         </div>
         <span @click="clickTab('mail_block')">邮箱配置</span>
-        <span @click="clickTab('server_block')">Server酱配置</span>
+        <span @click="clickTab('serverchan_block')">Server酱配置</span>
 
         <div id="mail_block" v-if="tabIsShow('mail_block')">
             <div>
@@ -38,7 +38,7 @@
             </div>
         </div>
         
-        <div id="server_block" v-if="tabIsShow('server_block')">
+        <div id="serverchan_block" v-if="tabIsShow('serverchan_block')">
             <div>
                 <listpage api_url='/mail/recv' block_title="Server酱收件人配置"></listpage>
                 <!-- <h5>邮件收件人配置</h5>

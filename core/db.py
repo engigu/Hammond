@@ -48,10 +48,9 @@ class CookiesPoolRedis(Redis):
             RedisStoreKeyConfig.SEND_MAIL_KEY,
             json.dumps({'account': account, 'password': password}))
 
-    def add_mail_receiver(self, account):
-        # 添加一个邮件接受者
+    def add_receiver(self, redis_key, account):
         record = self.redis_client.hget(
-            RedisStoreKeyConfig.RECV_MAIL_KEY,
+            redis_key,
             account
         )
         if record:
@@ -62,22 +61,21 @@ class CookiesPoolRedis(Redis):
             'modified': Utils.now(),
         }
         self.redis_client.hset(
-            RedisStoreKeyConfig.RECV_MAIL_KEY, account,
+            redis_key, account,
             json.dumps(account_info, ensure_ascii=False)
         )
         return 'ok!'
 
-    def list_all_mail_receivers(self):
-        # 查询所有的邮件接受人
-        result = self.redis_client.hgetall(RedisStoreKeyConfig.RECV_MAIL_KEY)
+    def list_all_receivers(self, redis_key):
+        result = self.redis_client.hgetall(redis_key)
         return {k.decode(): json.loads(v) for k, v in result.items()}
 
-    def delete_mail_receiver(self, account):
+    def delete_receiver(self, redis_key, account):
         self.redis_client.hdel(
-            RedisStoreKeyConfig.RECV_MAIL_KEY, account
+            redis_key, account
         )
 
-    def update_mail_receiver(self, account, is_recv):
+    def update_receiver(self, redis_key, account, is_recv):
         account_info = {
             'is_recv': is_recv,
             'modified': Utils.now(),
@@ -86,3 +84,25 @@ class CookiesPoolRedis(Redis):
             RedisStoreKeyConfig.RECV_MAIL_KEY, account,
             json.dumps(account_info, ensure_ascii=False)
         )
+
+    def add_mail_receiver(self, account, redis_key=None):
+        # 添加一个接受者
+        if not redis_key:
+            redis_key = RedisStoreKeyConfig.RECV_MAIL_KEY
+        return self.add_receiver(redis_key, account)
+
+    def list_all_mail_receivers(self, redis_key=None):
+        # 查询所有的接受人
+        if not redis_key:
+            redis_key = RedisStoreKeyConfig.RECV_MAIL_KEY
+        return self.list_all_receivers(redis_key)
+
+    def delete_mail_receiver(self, account, redis_key=None):
+        if not redis_key:
+            redis_key = RedisStoreKeyConfig.RECV_MAIL_KEY
+        return self.delete_receiver(redis_key, account)
+
+    def update_mail_receiver(self, account, is_recv, redis_key=None):
+        if not redis_key:
+            redis_key = RedisStoreKeyConfig.RECV_MAIL_KEY
+        return self.update_receiver(redis_key, account, is_recv)

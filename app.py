@@ -5,7 +5,7 @@ from flask import Flask, render_template, jsonify, request
 # from flask_httpauth import HTTPBasicAuthreid
 
 from core.db import CookiesPoolRedis
-from config import Config
+from config import Config, RedisStoreKeyConfig
 
 REDIS_MODEL = CookiesPoolRedis(uri=Config.BACKEND_REDIS_URI)
 app = Flask(__name__)

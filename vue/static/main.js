@@ -89,7 +89,7 @@ var main = new Vue({
         "b64raw": "",
         "is_show_map": {
             'mail_block': true,
-            'server_block': false,
+            'serverchan_block': false,
         }
     },
     mounted() {
@@ -114,6 +114,7 @@ var main = new Vue({
             })
         },
         clickTab(block_name) {
+            // 点击tab，用于切换
             for (var key in this.is_show_map) {
                 if (key === block_name) {
                     this.is_show_map[key] = !Boolean(this.is_show_map[key])
@@ -121,15 +122,11 @@ var main = new Vue({
                     this.is_show_map[key] = false
                 }
             }
-
         },
         tabIsShow(block_name) {
             // 是否展示当前tab，用于切换
             return Boolean(this.is_show_map[block_name])
-
         }
-
-
     },
     computed: {
         b64encodeValue() {
