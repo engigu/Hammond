@@ -15,14 +15,17 @@
         <div>
             <input v-model='b64raw'></input>{{ b64encodeValue }}
         </div>
-        <div id="mail_block">
-            <h4>邮箱配置</h4>
+        <span @click="clickTab('mail_block')">邮箱配置</span>
+        <span @click="clickTab('server_block')">Server酱配置</span>
+
+        <div id="mail_block" v-if="tabIsShow('mail_block')">
             <div>
                 <h5>内置邮件帐号配置</h5>
                 <input v-model="send_mail_account"></input>
                 <input v-model="send_mail_password"></input>
                 <button @click="updateSendMail()">修改</button>
-                <h5>邮件收件人配置</h5>
+                <listpage api_url='/mail/recv' block_title="邮件收件人配置"></listpage>
+                <!-- <h5>邮件收件人配置</h5>
                 <ul>
                     <input v-model="to_add_mail"></input>
                     <button @click="addRecvMail(to_add_mail)">新增收件人</button>
@@ -31,11 +34,29 @@
                         <td><input type="checkbox" id="checkbox" :checked="mail_recv_value.is_recv" @click="updateRecvMail(mail_recv_key, $event.target.checked)"></td>
                         <td><button @click="deleteSendMail(mail_recv_key)">删除</button></td>
                     </li>
-                </ul>
+                </ul> -->
             </div>
-
         </div>
-    </div></div>
+        
+        <div id="server_block" v-if="tabIsShow('server_block')">
+            <div>
+                <listpage api_url='/mail/recv' block_title="Server酱收件人配置"></listpage>
+                <!-- <h5>邮件收件人配置</h5>
+                <ul>
+                    <input v-model="to_add_mail"></input>
+                    <button @click="addRecvMail(to_add_mail)">新增收件人</button>
+                    <li v-for="(mail_recv_value, mail_recv_key, index) in mail_recvivers" >
+                        <td><span>{{ mail_recv_key }}</span></td>
+                        <td><input type="checkbox" id="checkbox" :checked="mail_recv_value.is_recv" @click="updateRecvMail(mail_recv_key, $event.target.checked)"></td>
+                        <td><button @click="deleteSendMail(mail_recv_key)">删除</button></td>
+                    </li>
+                </ul> -->
+            </div>
+        </div>
+        
+    </div>
+    </div>
 </body>
 <script src="./static/main.js"></script>
+
 </html>

@@ -11,66 +11,74 @@
 // var default_site = get_site_from_url()
 
 
-// Vue.component("listpage", {
-//     template: `
-//     <table v-show="isShow">
-//     listpage
-//     {{ query_site }} 站点信息
-//     {{ query_site }}
-//     {{ get_cookies }}  <!-- 更改数据 -->
-//     {{ total }}
-//     <tr>
-//         <td v-for="col in col_list">{{ col }}</td>
-//     </tr>
-
-//     <tr v-for="(item, index) in list_data">
-//         <td> {{ item.cookies_name }} </td>
-//         <input :value="item.cookies"  v-model="input_cookies"></input>
-//         <td> {{ item.modified }} </td>
-//         <td v-text="item.status?'不可用':'可用'"></td>
-//         <td :key="item.no">修改</td>
-//         <td :key="item.no" @click="deleteCookies(item.id, index)">删除</td>
-//     </tr>
-
-// </table>`,
-//     data() {
-//         return {
-//             "list_data": "",
-//             "input_cookies": "",
-//             "current_editing_cookies": "",
-//             "col_list": ["Name", "Cookie", "ModifiedAt", "Status"],
-//             "total": "",
-//         }
-//     },
-//     props: ["query_site"],
-//     computed: {
-//         get_cookies() {
-//             if (this.query_site != '') {
-//                 axios.get('/cookies_all?site=' + this.query_site).then(response => (
-//                     this.list_data = response.data.cookies,
-//                     this.total = response.data.total
-//                 )).catch(function (err) {
-//                     console.log(err)
-//                 })
-//             }
-//         },
-//         isShow() {
-//             return this.query_site != ''
-//         }
-//     },
-//     methods: {
-//         deleteCookies(cookies_id, index) {
-//             axios.delete('/cookies?cookies_id=' + cookies_id).then(
-//                 response => (this.list_data.splice(index, 1))
-//             ).catch(response => (''))
-//         },
-//         clickToEdite(cookies){
-//             this.current_editing_cookies =  cookies
-//             console.log(cookies)
-//         }
-//     }
-
-// })
+Vue.component("listpage", {
+    template: `
+    <div>
+        <h5>{{block_title}}</h5>
+        <ul>
+            <input v-model="to_add"></input>
+            <button @click="addRecv(to_add)">新增收件人</button>
+            <li v-for="(recv_value, recv_key, index) in recvivers" >
+                <td><span>{{ recv_key }}</span></td>
+                <td><input type="checkbox" id="checkbox" :checked="recv_value.is_recv" @click="updateRecv(recv_key, $event.target.checked)"></td>
+                <td><button @click="deleteRecv(recv_key)">删除</button></td>
+            </li>
+        </ul>
+    </div>
+    `,
+    data() {
+        return {
+            "to_add": "",
+            "recvivers": "",
+        }
+    },
+    props: {
+        api_url: String,
+        block_title: String
+    },
+    mounted() {
+        // 加载收件人列表
+        axios.get(this.api_url).then(response => (
+            this.recvivers = response.data
+        )).catch(function (err) {
+            console.log(err)
+        })
+    },
+    methods: {
+        addRecv(to_add) {
+            if (to_add) {
+                var form = new FormData();
+                form.append('account', to_add);
+                axios.post(this.api_url, form).then(response => (
+                    console.log(this.recvivers),
+                    this.$set(this.recvivers, to_add, { "is_recv": 1 }),
+                    alert(response.data.msg)
+                )).catch(function (err) {
+                    console.log(err)
+                })
+            }
+        },
+        updateRecv(account, is_recv) {
+            is_recv = is_recv ? 1 : 0;
+            var form = new FormData();
+            form.append('account', account);
+            form.append('is_recv', is_recv);
+            axios.put(this.api_url, form).then(response => (
+                // console.log(this.mail_recvivers),
+                console.log(account, is_recv)
+            )).catch(function (err) {
+                console.log(err)
+            })
+        },
+        deleteRecv(account, index) {
+            axios.delete(this.api_url + '?account=' + account).then(response => (
+                Vue.delete(this.recvivers, account)
+            )).catch(function (err) {
+                console.log(err)
+            })
+        }
+    }
+})
 
 
 var main = new Vue({
@@ -79,8 +87,10 @@ var main = new Vue({
         "send_mail_account": "",
         "send_mail_password": "",
         "b64raw": "",
-        "to_add_mail": "",
-        "mail_recvivers": new Array(),
+        "is_show_map": {
+            'mail_block': true,
+            'server_block': false,
+        }
     },
     mounted() {
         // 邮箱配置
@@ -89,13 +99,8 @@ var main = new Vue({
             this.send_mail_password = response.data.password
         )).catch(function (err) {
             console.log(err)
-        });
-        // 邮箱收件人列表
-        axios.get('/mail/recv').then(response => (
-            this.mail_recvivers = response.data
-        )).catch(function (err) {
-            console.log(err)
         })
+
     },
     methods: {
         updateSendMail() {
@@ -108,43 +113,29 @@ var main = new Vue({
                 console.log(err)
             })
         },
-        addRecvMail(account) {
-            if (account) {
-                var form = new FormData();
-                form.append('account', account);
-                axios.post('/mail/recv', form).then(response => (
-                    console.log(this.mail_recvivers),
-                    this.$set(this.mail_recvivers, account, { "is_recv": 1 }),
-                    alert(response.data.msg)
-                )).catch(function (err) {
-                    console.log(err)
-                })
+        clickTab(block_name) {
+            for (var key in this.is_show_map) {
+                if (key === block_name) {
+                    this.is_show_map[key] = !Boolean(this.is_show_map[key])
+                } else {
+                    this.is_show_map[key] = false
+                }
             }
+
         },
-        updateRecvMail(account, is_recv) {
-            is_recv = is_recv ? 1 : 0;
-            var form = new FormData();
-            form.append('account', account);
-            form.append('is_recv', is_recv);
-            axios.put('/mail/recv', form).then(response => (
-                // console.log(this.mail_recvivers),
-                console.log(account, is_recv)
-            )).catch(function (err) {
-                console.log(err)
-            })
-        },
-        deleteSendMail(account, index) {
-            axios.delete('/mail/recv?account=' + account).then(response => (
-                Vue.delete(this.mail_recvivers, account)
-            )).catch(function (err) {
-                console.log(err)
-            })
+        tabIsShow(block_name) {
+            // 是否展示当前tab，用于切换
+            return Boolean(this.is_show_map[block_name])
+
         }
+
+
     },
     computed: {
         b64encodeValue() {
             return window.btoa(this.b64raw)
-        }
+        },
+
     }
 })
 
