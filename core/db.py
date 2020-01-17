@@ -1,7 +1,7 @@
 import base64
 import redis
 import json
-
+from datetime import timedelta
 import shortuuid
 
 from config import Config, RedisStoreKeyConfig
@@ -38,7 +38,7 @@ class Redis(metaclass=SameOriginSingleton):
         )
 
 
-class CookiesPoolRedis(Redis):
+class RedisModel(Redis):
     # 获取负责发送的邮箱帐号密码
     def get_send_mail(self):
         account = self.redis_client.get(RedisStoreKeyConfig.SEND_MAIL_KEY)
@@ -56,7 +56,7 @@ class CookiesPoolRedis(Redis):
             # 此时生成安全密钥，参数穿过只作为前缀
             # 完整密钥需要再次生成
             account = f'{account}:{shortuuid.uuid()}'
-            
+
         record = self.redis_client.hget(
             redis_key,
             account
@@ -84,33 +84,39 @@ class CookiesPoolRedis(Redis):
         )
 
     def update_receiver(self, redis_key, account, is_recv):
+
         account_info = {
             'is_recv': is_recv,
             'modified': Utils.now(),
         }
         self.redis_client.hset(
-            RedisStoreKeyConfig.RECV_MAIL_KEY, account,
+            redis_key, account,
             json.dumps(account_info, ensure_ascii=False)
         )
 
-    # def add_mail_receiver(self, account, redis_key=None):
-    #     # 添加一个接受者
-    #     if not redis_key:
-    #         redis_key = RedisStoreKeyConfig.RECV_MAIL_KEY
-    #     return self.add_receiver(redis_key, account)
+    def vaild_sec_key(self, sec_key):
 
-    # def list_all_mail_receivers(self, redis_key=None):
-    #     # 查询所有的接受人
-    #     if not redis_key:
-    #         redis_key = RedisStoreKeyConfig.RECV_MAIL_KEY
-    #     return self.list_all_receivers(redis_key)
+        result = self.redis_client.hget(
+            RedisStoreKeyConfig.ALLOWED_SEC_KEY, sec_key
+        )
 
-    # def delete_mail_receiver(self, account, redis_key=None):
-    #     if not redis_key:
-    #         redis_key = RedisStoreKeyConfig.RECV_MAIL_KEY
-    #     return self.delete_receiver(redis_key, account)
+        if not result:
+            return False
 
-    # def update_mail_receiver(self, account, is_recv, redis_key=None):
-    #     if not redis_key:
-    #         redis_key = RedisStoreKeyConfig.RECV_MAIL_KEY
-    #     return self.update_receiver(redis_key, account, is_recv)
+        is_recv = json.loads(result).get('is_recv', None)
+        return bool(is_recv)
+
+    def can_send_test_msg(self):
+        rtime = self.redis_client.get(RedisStoreKeyConfig.TEST_SEND_MSG_INTER_KEY)
+        if not rtime:
+            self.redis_client.set(
+                RedisStoreKeyConfig.TEST_SEND_MSG_INTER_KEY,
+                (Utils.now(return_datetime=True) + timedelta(seconds=Config.TEST_SEND_MSG_INTER_TIME)).strftime('%Y-%m-%d %H:%M:%S')
+                )
+            return True
+        
+        rtime = rtime.decode()
+        if Utils.now() > rtime:
+            return True
+
+        return rtime  # false

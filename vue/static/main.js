@@ -19,6 +19,7 @@ Vue.component("listpage", {
         <ul>
             <input v-model="to_add" :placeholder="to_add_palceholder"></input>
             <button @click="addRecv(to_add)">新增</button>
+            <button @click="testSend()">发送测试</button>
             <li v-for="(recv_value, recv_key, index) in recvivers" >
                 <td><span>{{ recv_key }}</span></td>
                 <td><input type="checkbox" id="checkbox" :checked="recv_value.is_recv" @click="updateRecv(recv_key, $event.target.checked)"></td>
@@ -78,6 +79,14 @@ Vue.component("listpage", {
             // 加载收件人列表
             axios.get(this.api_url).then(response => (
                 this.recvivers = response.data
+            )).catch(function (err) {
+                console.log(err)
+            })
+        },
+        testSend() {
+            // 加载收件人列表
+            axios.get('/notice/test/' + this.api_url.split('/').pop()).then(response => (
+                alert(response.data.msg)
             )).catch(function (err) {
                 console.log(err)
             })

@@ -6,7 +6,7 @@ from urllib import parse
 import requests
 
 from celery_senders.base_sender import BaseSender
-from config import DINGTALK_SEC, DINGTALK_ACCESS_TOKEN
+# from config import DINGTALK_SEC, DINGTALK_ACCESS_TOKEN
 
 
 class DingTalkRobot(BaseSender):

@@ -10,11 +10,16 @@ services:
     links:
       - redis
   
-  # celery-server:
-  #   image: "celery-server"
-  #   links:
-  #     - redis
-
+  celery-server:
+    build: 
+      context: .
+      dockerfile: docker/celery.dockerfile
+    image: "celery-server"
+    volumes: 
+      - .:/code
+    links:
+      - redis
+      
   redis:
     image: "redis:alpine"
     restart: always

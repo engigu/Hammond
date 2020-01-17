@@ -4,11 +4,12 @@ from flask import Flask, render_template, jsonify, request
 # from werkzeug.security import generate_password_hash, check_password_hash
 # from flask_httpauth import HTTPBasicAuthreid
 
-from core.db import CookiesPoolRedis
+from core.db import RedisModel
 from config import Config, RedisStoreKeyConfig
 from core.defined import ConfigKey
+from celery_senders.sender import ALL_SENDERS, send_notice
 
-REDIS_MODEL = CookiesPoolRedis(uri=Config.BACKEND_REDIS_URI)
+REDIS_MODEL = RedisModel(uri=Config.BACKEND_REDIS_URI)
 app = Flask(__name__)
 # auth = HTTPBasicAuth()
 
@@ -122,11 +123,46 @@ def recv_del(ctype):
 @app.route('/notice', methods=['POST'])
 # @auth.login_required
 def notice():
+    title = request.form.get('title', None)
+    way = request.form.get('way', None)
+    content = request.form.get('content', None)
+    key = request.form.get('key', None)
 
-    account = request.args.get('account', None)
-    if not account:
-        return error(msg='account is none')
-    REDIS_MODEL.delete_receiver(account=account, redis_key=redis_key)
+    if not all([title, way, content]):
+        return error(msg='title or way or content is none')
+
+    if not REDIS_MODEL.vaild_sec_key(key):
+        return error(msg='key invaild!')
+
+    if way not in ALL_SENDERS:
+        return error(msg='way invaild!')
+
+    app.logger.info('title, way, content, key :::: %s %s %s %s' %
+                    (title, way, content, key))
+    send_notice(way, title, content)
+    return ok()
+
+
+# 发送消息
+@app.route('/notice/test/<ctype>', methods=['GET'])
+# @auth.login_required
+def notice_test(ctype):
+    test_map = {
+        'mail': 'SinaEmail',
+        'serverchan': 'ServerChan',
+    }
+
+    way = test_map.get(ctype, None)
+    title = 'test title'
+    content = 'test content'
+
+    result = REDIS_MODEL.can_send_test_msg()
+    if result is not True:
+        return error(msg=f'next send time: {result}')
+
+    app.logger.info('test send ::: title, way, content :::: %s %s %s' % (
+        title, way, content))
+    send_notice(way, title, content)
     return ok()
 
 

@@ -16,7 +16,6 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositorie
 	&& pip install -r /code/requirements.txt -i https://mirrors.aliyun.com/pypi/simple/
 
 COPY . /code
-WORKDIR /code
+WORKDIR /code/celery_senders
 
-EXPOSE 9643
-CMD ["python", "app.py"]
+CMD celery -A sender worker --loglevel=info
