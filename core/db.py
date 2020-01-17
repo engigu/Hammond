@@ -1,3 +1,6 @@
+from config import Config, RedisStoreKeyConfig
+from core.utils import Utils
+from core.defined import ConfigKey
 import base64
 import redis
 import json
@@ -7,9 +10,7 @@ import shortuuid
 import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-from core.defined import ConfigKey
-from core.utils import Utils
-from config import Config, RedisStoreKeyConfig
+
 
 class SameOriginSingleton(type):
     """
@@ -81,6 +82,7 @@ class RedisModel(Redis):
         return {k.decode(): json.loads(v) for k, v in result.items()}
 
     def delete_receiver(self, redis_key, account):
+        # raise Exception(redis_key, account)
         self.redis_client.hdel(
             redis_key, account
         )
@@ -121,6 +123,11 @@ class RedisModel(Redis):
 
         rtime = rtime.decode()
         if Utils.now() > rtime:
+            self.redis_client.set(
+                RedisStoreKeyConfig.TEST_SEND_MSG_INTER_KEY,
+                (Utils.now(return_datetime=True) +
+                 timedelta(seconds=Config.TEST_SEND_MSG_INTER_TIME)).strftime('%Y-%m-%d %H:%M:%S')
+            )
             return True
 
         return rtime  # false

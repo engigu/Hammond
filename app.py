@@ -75,6 +75,7 @@ def recv_post(ctype):
     account = request.form.get('account', None)
     if not account:
         return error(msg='account is none')
+    account = account.strip()
     result = REDIS_MODEL.add_receiver(account=account, redis_key=redis_key)
     return ok(msg=result)
 
@@ -89,6 +90,7 @@ def recv_put(ctype):
 
     account = request.form.get('account', None)
     is_recv = request.form.get('is_recv', None)
+    
     if not all([account, is_recv]):
         return error(msg='account or is_recv is none')
 
@@ -99,6 +101,7 @@ def recv_put(ctype):
     except:
         return error(msg='is_recv not in [1, 0]!')
 
+    account = account.strip()
     REDIS_MODEL.update_receiver(
         account=account, is_recv=is_recv, redis_key=redis_key)
     return ok()
@@ -115,6 +118,7 @@ def recv_del(ctype):
     account = request.args.get('account', None)
     if not account:
         return error(msg='account is none')
+    account = account.strip()
     REDIS_MODEL.delete_receiver(account=account, redis_key=redis_key)
     return ok()
 

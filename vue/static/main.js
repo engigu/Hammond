@@ -1,14 +1,17 @@
-
-// function get_site_from_url() {
-//     arr = window.location.href.split('#')
-//     site = ''
-//     if (arr.length === 2) {
-//         site = arr.pop()
-//     }
-//     return site
-// }
-
-// var default_site = get_site_from_url()
+//自定义弹框
+function Toast(msg,duration){
+    duration=isNaN(duration)?3000:duration;
+    var m = document.createElement('div');
+    m.innerHTML = msg;
+    m.style.cssText="width: 60%;min-width: 150px;opacity: 0.7;height: 40px;color: rgb(255, 255, 255);line-height: 40px;text-align: center;border-radius: 5px;position: fixed;top: 40%;left: 20%;z-index: 999999;background: rgb(0, 0, 0);font-size: 13px;font-family: Arial, Helvetica, sans-serif;";
+    document.body.appendChild(m);
+    setTimeout(function() {
+        var d = 0.5;
+        m.style.webkitTransition = '-webkit-transform ' + d + 's ease-in, opacity ' + d + 's ease-in';
+        m.style.opacity = '0';
+        setTimeout(function() { document.body.removeChild(m) }, d * 1000);
+    }, duration);
+}
 
 
 Vue.component("listpage", {
@@ -16,16 +19,16 @@ Vue.component("listpage", {
     <div>
         <h5>{{block_title}}</h5>
         {{ _updateView }}
-        <ul>
-            <input v-model="to_add" :placeholder="to_add_palceholder"></input>
+        <div id="listpage_ul">
+            <input id="input_area" v-model="to_add" :placeholder="to_add_palceholder"></input>
             <button @click="addRecv(to_add)">新增</button>
-            <button @click="testSend()">发送测试</button>
-            <li v-for="(recv_value, recv_key, index) in recvivers" >
+            <button @click="testSend()" v-show="testButtonShow">发送测试</button>
+            <tr id="listpage_li" v-for="(recv_value, recv_key, index) in recvivers" >
                 <td><span>{{ recv_key }}</span></td>
                 <td><input type="checkbox" id="checkbox" :checked="recv_value.is_recv" @click="updateRecv(recv_key, $event.target.checked)"></td>
                 <td><button @click="deleteRecv(recv_key)">删除</button></td>
-            </li>
-        </ul>
+            </tr>
+        </div>
     </div>
     `,
     data() {
@@ -50,7 +53,7 @@ Vue.component("listpage", {
                 axios.post(this.api_url, form).then(response => (
                     console.log(this.recvivers),
                     this.$set(this.recvivers, to_add, { "is_recv": 1 }),
-                    alert(response.data.msg)
+                    Toast(response.data.msg)
                 )).catch(function (err) {
                     console.log(err)
                 })
@@ -86,7 +89,7 @@ Vue.component("listpage", {
         testSend() {
             // 加载收件人列表
             axios.get('/notice/test/' + this.api_url.split('/').pop()).then(response => (
-                alert(response.data.msg)
+                Toast(response.data.msg)
             )).catch(function (err) {
                 console.log(err)
             })
@@ -95,6 +98,9 @@ Vue.component("listpage", {
     computed: {
         _updateView() {
             return this.updateView()
+        },
+        testButtonShow(){
+            return this.api_url.split('/').pop() != 'allowed_sec_keys'
         }
     }
 })
@@ -128,7 +134,7 @@ var main = new Vue({
             form.append('account', this.send_mail_account);
             form.append('password', this.send_mail_password);
             axios.post('/send/mail_backend', form).then(response => (
-                alert(response.data.msg)
+                Toast(response.data.msg)
             )).catch(function (err) {
                 console.log(err)
             })

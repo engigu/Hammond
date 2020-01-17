@@ -77,7 +77,7 @@ class SinaSmtpSender(BaseSender):
                 "has send the mail to {}.".format(' '.join(receivers))
                 )
         except:
-            self.logger.error("acconut: %s, password: %s, receives: %s"% (str(self.user, self.passwd, self.receivers)))
+            self.logger.error("acconut: %s, password: %s, receives: %s"% (str(self.user), str(self.passwd), str(self.receivers)))
             self.logger.error("send error！\nerror: " + str(traceback.format_exc()))
 
     def send(self, title, content):

@@ -9,7 +9,7 @@ a Simple notice server with simple web panel
 ## 运行
 `web`静态资源和`api`用`nginx`做了分离，直接使用`docker-compose`运行
 1. 安装`docker-compose`,参见[docker-compose](https://docs.docker.com/compose/install/)
-2. 打包启动服务
+2. 启动服务
 ```
 docker-compose build
 docker-compose up -d
@@ -25,6 +25,7 @@ docker-compose up -d
  ```
 celery -A sender worker --loglevel=info
  ```
+ - `client`推送消息参考`cli/cli.py`
 
 ## TODO
  - 接入`dingtalk`

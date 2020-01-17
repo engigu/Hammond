@@ -9,39 +9,43 @@
 </head>
 <script src="./static/vue.js"></script>
 <script src="./static/axios.min.js"></script>
+<link rel="stylesheet" type="text/css" href="./static/main.css">
 
 <body>
     <div id="main">
         <div>
-            <input v-model='b64raw'></input>{{ b64encodeValue }}
+            <!-- <input v-model='b64raw'></input>{{ b64encodeValue }} -->
         </div>
-        <span @click="clickTab('mail_block')">邮箱配置</span>
-        <span @click="clickTab('serverchan_block')">Server酱配置</span>
-        <span @click="clickTab('sec_keys_block')">安全密钥配置</span>
-
+        <div>
+            <span id="tab_button" @click="clickTab('mail_block')">邮箱配置</span>
+            <span id="tab_button" @click="clickTab('serverchan_block')">Server酱配置</span>
+            <span id="tab_button" @click="clickTab('sec_keys_block')">安全密钥配置</span>
+        </div>
         <div id="mail_block" v-if="tabIsShow('mail_block')">
             <div>
                 <h5>内置邮件帐号配置</h5>
-                <input v-model="send_mail_account"></input>
-                <input v-model="send_mail_password"></input>
+                <input id="input_area" v-model="send_mail_account"></input>
+                <input id="input_area" v-model="send_mail_password"></input>
                 <button @click="updateSendMail()">修改</button>
                 <listpage api_url='/recv/mail' block_title="邮件收件人配置" to_add_palceholder="输入要添加的邮箱"></listpage>
-            
+
             </div>
         </div>
-        
+
         <div id="serverchan_block" v-if="tabIsShow('serverchan_block')">
             <div>
-                <listpage api_url='/recv/serverchan' block_title="Server酱收件人配置" to_add_palceholder="输入要添加的ServerKey"></listpage>
+                <listpage api_url='/recv/serverchan' block_title="Server酱收件人配置" to_add_palceholder="输入要添加的ServerKey">
+                </listpage>
             </div>
         </div>
 
         <div id="sec_keys_block" v-if="tabIsShow('sec_keys_block')">
             <div>
-                <listpage api_url='/recv/allowed_sec_keys' block_title="安全密钥配置" to_add_palceholder="输入要添加的密钥前缀"></listpage>
+                <listpage api_url='/recv/allowed_sec_keys' block_title="安全密钥配置" to_add_palceholder="输入要添加的密钥前缀">
+                </listpage>
             </div>
         </div>
-        
+
     </div>
     </div>
 </body>
