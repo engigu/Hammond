@@ -24,7 +24,7 @@
         <div id="mail_block" v-if="tabIsShow('mail_block')">
             <div>
                 <h5>内置邮件帐号配置</h5>
-                <input id="input_area" v-model="send_mail_account"></input>
+                <input id="input_area" v-model="send_mail_account" placeholder="暂时只支持sina邮箱"></input>
                 <input id="input_area" v-model="send_mail_password"></input>
                 <button @click="updateSendMail()">修改</button>
                 <listpage api_url='/recv/mail' block_title="邮件收件人配置" to_add_palceholder="输入要添加的邮箱"></listpage>
