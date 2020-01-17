@@ -15,9 +15,10 @@ Vue.component("listpage", {
     template: `
     <div>
         <h5>{{block_title}}</h5>
+        {{ _updateView }}
         <ul>
-            <input v-model="to_add"></input>
-            <button @click="addRecv(to_add)">新增收件人</button>
+            <input v-model="to_add" :placeholder="to_add_palceholder"></input>
+            <button @click="addRecv(to_add)">新增</button>
             <li v-for="(recv_value, recv_key, index) in recvivers" >
                 <td><span>{{ recv_key }}</span></td>
                 <td><input type="checkbox" id="checkbox" :checked="recv_value.is_recv" @click="updateRecv(recv_key, $event.target.checked)"></td>
@@ -34,15 +35,11 @@ Vue.component("listpage", {
     },
     props: {
         api_url: String,
+        to_add_palceholder: String,
         block_title: String
     },
     mounted() {
-        // 加载收件人列表
-        axios.get(this.api_url).then(response => (
-            this.recvivers = response.data
-        )).catch(function (err) {
-            console.log(err)
-        })
+        this.updateView()
     },
     methods: {
         addRecv(to_add) {
@@ -76,6 +73,19 @@ Vue.component("listpage", {
             )).catch(function (err) {
                 console.log(err)
             })
+        },
+        updateView() {
+            // 加载收件人列表
+            axios.get(this.api_url).then(response => (
+                this.recvivers = response.data
+            )).catch(function (err) {
+                console.log(err)
+            })
+        }
+    },
+    computed: {
+        _updateView() {
+            return this.updateView()
         }
     }
 })
@@ -90,11 +100,12 @@ var main = new Vue({
         "is_show_map": {
             'mail_block': true,
             'serverchan_block': false,
+            'sec_keys_block': false,
         }
     },
     mounted() {
         // 邮箱配置
-        axios.get('/mail/send').then(response => (
+        axios.get('/send/mail_backend').then(response => (
             this.send_mail_account = response.data.account,
             this.send_mail_password = response.data.password
         )).catch(function (err) {
@@ -107,7 +118,7 @@ var main = new Vue({
             var form = new FormData();
             form.append('account', this.send_mail_account);
             form.append('password', this.send_mail_password);
-            axios.post('/mail/send', form).then(response => (
+            axios.post('/send/mail_backend', form).then(response => (
                 alert(response.data.msg)
             )).catch(function (err) {
                 console.log(err)

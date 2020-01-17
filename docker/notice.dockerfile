@@ -7,7 +7,8 @@ ADD requirements.txt /code/requirements.txt
 ENV TZ=Asia/Shanghai
 ENV RUN_IN_DOCKER=yes
 
-RUN apk update \
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories \
+	&& apk update \
     && apk add tzdata \
     && echo "${TZ}" > /etc/timezone \
     && ln -sf /usr/share/zoneinfo/${TZ} /etc/localtime \

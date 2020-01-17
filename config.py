@@ -13,7 +13,7 @@ class Config:
 
 class RedisStoreKeyConfig(Config):
 
-    # string           
+    # string
     SEND_MAIL_KEY = 'sina-send-mail-account'
 
     # hash
@@ -21,6 +21,10 @@ class RedisStoreKeyConfig(Config):
 
     # hash server酱
     RECV_SERVERCHAN_KEY = 'recv-serverchan-accounts'
+
+    # hash server酱
+    ALLOWED_SEC_KEY = 'allowed-sec-keys'
+
 
 # #
 # #

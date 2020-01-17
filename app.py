@@ -6,6 +6,7 @@ from flask import Flask, render_template, jsonify, request
 
 from core.db import CookiesPoolRedis
 from config import Config, RedisStoreKeyConfig
+from core.defined import ConfigKey
 
 REDIS_MODEL = CookiesPoolRedis(uri=Config.BACKEND_REDIS_URI)
 app = Flask(__name__)
@@ -33,14 +34,14 @@ def index():
 
 
 # 查询所有的keys
-@app.route('/mail/send', methods=['GET'])
+@app.route('/send/mail_backend', methods=['GET'])
 # @auth.login_required
 def mail_send_get():
     account = REDIS_MODEL.get_send_mail()
     return jsonify(account)
 
 # 查询所有的keys
-@app.route('/mail/send', methods=['POST'])
+@app.route('/send/mail_backend', methods=['POST'])
 # @auth.login_required
 def mail_send_post():
     account = request.form.get('account', None)
@@ -51,28 +52,40 @@ def mail_send_post():
     return ok()
 
 
-# 查询所有的邮件接受者
-@app.route('/mail/recv', methods=['GET'])
+# 查询所有的接受者
+@app.route('/recv/<ctype>', methods=['GET'])
 # @auth.login_required
-def mail_recv_get():
-    result = REDIS_MODEL.list_all_mail_receivers()
+def recv_get(ctype):
+    if ctype not in ConfigKey.keys:
+        return error(msg='ctype in url is error!')
+    redis_key = getattr(ConfigKey, ctype)
+
+    result = REDIS_MODEL.list_all_receivers(redis_key=redis_key)
     return jsonify(result)
 
 
-# 添加一个邮件接受人
-@app.route('/mail/recv', methods=['POST'])
+# 添加一个接受人
+@app.route('/recv/<ctype>', methods=['POST'])
 # @auth.login_required
-def mail_recv_post():
+def recv_post(ctype):
+    if ctype not in ConfigKey.keys:
+        return error(msg='ctype in url is error!')
+    redis_key = getattr(ConfigKey, ctype)
     account = request.form.get('account', None)
     if not account:
         return error(msg='account is none')
-    result = REDIS_MODEL.add_mail_receiver(account)
+    result = REDIS_MODEL.add_receiver(account=account, redis_key=redis_key)
     return ok(msg=result)
 
-# 更新一个邮件接受人
-@app.route('/mail/recv', methods=['PUT'])
+
+# 更新一个接受人
+@app.route('/recv/<ctype>', methods=['PUT'])
 # @auth.login_required
-def mail_recv_put():
+def recv_put(ctype):
+    if ctype not in ConfigKey.keys:
+        return error(msg='ctype in url is error!')
+    redis_key = getattr(ConfigKey, ctype)
+
     account = request.form.get('account', None)
     is_recv = request.form.get('is_recv', None)
     if not all([account, is_recv]):
@@ -85,18 +98,35 @@ def mail_recv_put():
     except:
         return error(msg='is_recv not in [1, 0]!')
 
-    REDIS_MODEL.update_mail_receiver(account, is_recv)
+    REDIS_MODEL.update_receiver(
+        account=account, is_recv=is_recv, redis_key=redis_key)
     return ok()
 
 
-# 删除一个邮件接受人
-@app.route('/mail/recv', methods=['DELETE'])
+# 删除一个接受人
+@app.route('/recv/<ctype>', methods=['DELETE'])
 # @auth.login_required
-def mail_recv_del():
+def recv_del(ctype):
+    if ctype not in ConfigKey.keys:
+        return error(msg='ctype in url is error!')
+    redis_key = getattr(ConfigKey, ctype)
+
     account = request.args.get('account', None)
     if not account:
         return error(msg='account is none')
-    REDIS_MODEL.delete_mail_receiver(account)
+    REDIS_MODEL.delete_receiver(account=account, redis_key=redis_key)
+    return ok()
+
+
+# 发送消息
+@app.route('/notice', methods=['POST'])
+# @auth.login_required
+def notice():
+
+    account = request.args.get('account', None)
+    if not account:
+        return error(msg='account is none')
+    REDIS_MODEL.delete_receiver(account=account, redis_key=redis_key)
     return ok()
 
 
