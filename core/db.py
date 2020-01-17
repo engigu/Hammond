@@ -4,10 +4,12 @@ import json
 from datetime import timedelta
 import shortuuid
 
-from config import Config, RedisStoreKeyConfig
-from core.utils import Utils
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from core.defined import ConfigKey
-
+from core.utils import Utils
+from config import Config, RedisStoreKeyConfig
 
 class SameOriginSingleton(type):
     """
@@ -107,16 +109,35 @@ class RedisModel(Redis):
         return bool(is_recv)
 
     def can_send_test_msg(self):
-        rtime = self.redis_client.get(RedisStoreKeyConfig.TEST_SEND_MSG_INTER_KEY)
+        rtime = self.redis_client.get(
+            RedisStoreKeyConfig.TEST_SEND_MSG_INTER_KEY)
         if not rtime:
             self.redis_client.set(
                 RedisStoreKeyConfig.TEST_SEND_MSG_INTER_KEY,
-                (Utils.now(return_datetime=True) + timedelta(seconds=Config.TEST_SEND_MSG_INTER_TIME)).strftime('%Y-%m-%d %H:%M:%S')
-                )
+                (Utils.now(return_datetime=True) +
+                 timedelta(seconds=Config.TEST_SEND_MSG_INTER_TIME)).strftime('%Y-%m-%d %H:%M:%S')
+            )
             return True
-        
+
         rtime = rtime.decode()
         if Utils.now() > rtime:
             return True
 
         return rtime  # false
+
+
+if __name__ == "__main__":
+    # redis数据初始化
+    REDIS_MODEL = RedisModel(uri=Config.BACKEND_REDIS_URI)
+
+    action = sys.argv[1]
+    if action != 'init':
+        print(f'action: {action} error!\nUsage: init')
+    else:
+        maps = {
+            k: v for k, v in RedisStoreKeyConfig.__dict__.items() 
+            if not k.startswith('__')
+            }
+        for key in maps.keys():
+            REDIS_MODEL.redis_client.delete(key)
+        print('reset redis end')
