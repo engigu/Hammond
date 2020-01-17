@@ -14,14 +14,6 @@ a Simple notice server with simple web panel
 docker-compose build
 docker-compose up -d
 ```
-3. 执行redis初始化
-```
-python core/db.py init
-```
-```
-celery -A sender worker --loglevel=info
-```
-4. 
 
 ## 说明
  - 如果需要清空`redis`进行初始化,执行以下
