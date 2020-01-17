@@ -9,17 +9,26 @@ from email.utils import parseaddr, formataddr
 import smtplib
 
 from celery_senders.base_sender import BaseSender
-from config import SINA_SMTP_USER, SINA_SMTP_PASS, SINA_SMTP_RECEIVERS
+from core.db import RedisModel
+from config import Config, RedisStoreKeyConfig
+
+REDIS_MODEL = RedisModel(uri=Config.BACKEND_REDIS_URI)
 
 
 class SinaSmtpSender(BaseSender):
     name = 'SinaEmail'
 
     def __init__(self, *args, **kwargs):
-        self.user = self.decode_base64(SINA_SMTP_USER)
-        self.passwd = self.decode_base64(SINA_SMTP_PASS)
-        self.receivers = [self.decode_base64(i) for i in SINA_SMTP_RECEIVERS]
+        self.user, self.passwd, self.receivers = self.get_args_from_redis()
         super(SinaSmtpSender, self).__init__(*args, **kwargs)
+
+    def get_args_from_redis(self):
+        user = REDIS_MODEL.get_send_mail()
+        receivers = REDIS_MODEL.list_all_receivers(
+            RedisStoreKeyConfig.RECV_MAIL_KEY
+        )
+        receivers = [k for k, v in receivers.items() if v.get('is_recv', None)]
+        return user.get('account', None), user.get('password', None), receivers
 
     def smtp_sendmail(self, subject, mail_content):
         """SMTP 邮件发送模块
@@ -56,8 +65,6 @@ class SinaSmtpSender(BaseSender):
         message['To'] = _format_addr('%s <%s>' % (name_receiver, receivers))
         message['Subject'] = Header(subject, 'utf-8')
 
-        # print(message)
-
         # 发送区
         try:
             smtpObj = smtplib.SMTP_SSL(mail_host, 465)  # 25 为 SMTP 端口号
@@ -66,8 +73,11 @@ class SinaSmtpSender(BaseSender):
             smtpObj.login(mail_user, mail_pass)
             smtpObj.sendmail(mail_user, receivers, message.as_string())
             smtpObj.quit()
-            self.logger.info("has send the mail to {}.".format(' '.join(receivers)))
+            self.logger.info(
+                "has send the mail to {}.".format(' '.join(receivers))
+                )
         except:
+            self.logger.error("acconut: %s, password: %s, receives: %s"% (str(self.user), str(self.passwd), str(self.receivers)))
             self.logger.error("send error！\nerror: " + str(traceback.format_exc()))
 
     def send(self, title, content):
