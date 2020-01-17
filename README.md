@@ -26,6 +26,7 @@ docker-compose up -d
 celery -A sender worker --loglevel=info
  ```
  - `client`推送消息参考`cli/cli.py`
+ - `http-auth`默认帐号密码`hammond``abc321`
 
 ## TODO
  - 接入`dingtalk`
