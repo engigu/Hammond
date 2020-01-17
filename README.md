@@ -16,6 +16,7 @@ a Simple notice server with simple web panel
 docker-compose build
 docker-compose up -d
 ```
+3. 服务开启，访问`8890`端口
 
 ## 说明
  - 如果需要清空`redis`进行初始化,执行以下
