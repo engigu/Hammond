@@ -1,8 +1,8 @@
 import datetime
 import json
 from flask import Flask, render_template, jsonify, request
-# from werkzeug.security import generate_password_hash, check_password_hash
-# from flask_httpauth import HTTPBasicAuthreid
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_httpauth import HTTPBasicAuth
 
 from core.db import RedisModel
 from config import Config, RedisStoreKeyConfig
@@ -11,13 +11,16 @@ from celery_senders.sender import ALL_SENDERS, send_notice
 
 REDIS_MODEL = RedisModel(uri=Config.BACKEND_REDIS_URI)
 app = Flask(__name__)
-# auth = HTTPBasicAuth()
+auth = HTTPBasicAuth()
 
-# @auth.verify_password
-# def verify_password(username, password):
-#     if username in users:
-#         return check_password_hash(users.get(username), password)
-#     return False
+USERS = {u: generate_password_hash(p) for u, p in Config.HTTP_AUTH.items()}
+
+
+@auth.verify_password
+def verify_password(username, password):
+    if username in USERS:
+        return check_password_hash(USERS.get(username), password)
+    return False
 
 
 def error(code=-1,  msg='inter error'):
@@ -36,14 +39,14 @@ def index():
 
 # 查询所有的keys
 @app.route('/send/mail_backend', methods=['GET'])
-# @auth.login_required
+@auth.login_required
 def mail_send_get():
     account = REDIS_MODEL.get_send_mail()
     return jsonify(account)
 
 # 查询所有的keys
 @app.route('/send/mail_backend', methods=['POST'])
-# @auth.login_required
+@auth.login_required
 def mail_send_post():
     account = request.form.get('account', None)
     password = request.form.get('password', None)
@@ -55,7 +58,7 @@ def mail_send_post():
 
 # 查询所有的接受者
 @app.route('/recv/<ctype>', methods=['GET'])
-# @auth.login_required
+@auth.login_required
 def recv_get(ctype):
     if ctype not in ConfigKey.keys:
         return error(msg='ctype in url is error!')
@@ -67,7 +70,7 @@ def recv_get(ctype):
 
 # 添加一个接受人
 @app.route('/recv/<ctype>', methods=['POST'])
-# @auth.login_required
+@auth.login_required
 def recv_post(ctype):
     if ctype not in ConfigKey.keys:
         return error(msg='ctype in url is error!')
@@ -82,7 +85,7 @@ def recv_post(ctype):
 
 # 更新一个接受人
 @app.route('/recv/<ctype>', methods=['PUT'])
-# @auth.login_required
+@auth.login_required
 def recv_put(ctype):
     if ctype not in ConfigKey.keys:
         return error(msg='ctype in url is error!')
@@ -90,7 +93,7 @@ def recv_put(ctype):
 
     account = request.form.get('account', None)
     is_recv = request.form.get('is_recv', None)
-    
+
     if not all([account, is_recv]):
         return error(msg='account or is_recv is none')
 
@@ -109,7 +112,7 @@ def recv_put(ctype):
 
 # 删除一个接受人
 @app.route('/recv/<ctype>', methods=['DELETE'])
-# @auth.login_required
+@auth.login_required
 def recv_del(ctype):
     if ctype not in ConfigKey.keys:
         return error(msg='ctype in url is error!')
@@ -147,9 +150,9 @@ def notice():
     return ok()
 
 
-# 发送消息
+# 发送测试消息
 @app.route('/notice/test/<ctype>', methods=['GET'])
-# @auth.login_required
+@auth.login_required
 def notice_test(ctype):
     test_map = {
         'mail': 'SinaEmail',

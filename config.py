@@ -14,6 +14,11 @@ class Config:
 
     TEST_SEND_MSG_INTER_TIME = 1*60
 
+    # webauth 认证
+    HTTP_AUTH = {
+        'hammond': 'abc321'
+    }
+
 
 class RedisStoreKeyConfig(Config):
 

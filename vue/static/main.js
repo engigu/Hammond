@@ -66,14 +66,15 @@ Vue.component("listpage", {
             form.append('is_recv', is_recv);
             axios.put(this.api_url, form).then(response => (
                 // console.log(this.mail_recvivers),
-                console.log(account, is_recv)
+                Toast(this.response.data.msg)
             )).catch(function (err) {
                 console.log(err)
             })
         },
         deleteRecv(account, index) {
             axios.delete(this.api_url + '?account=' + account).then(response => (
-                Vue.delete(this.recvivers, account)
+                Vue.delete(this.recvivers, account),
+                Toast(this.response.data.msg)
             )).catch(function (err) {
                 console.log(err)
             })

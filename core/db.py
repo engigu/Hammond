@@ -58,7 +58,11 @@ class RedisModel(Redis):
         if redis_key == ConfigKey.allowed_sec_keys:
             # 此时生成安全密钥，参数穿过只作为前缀
             # 完整密钥需要再次生成
-            account = f'{account}:{shortuuid.uuid()}'
+            if account.startswith(':::'):
+                # 添加指定的密钥
+                account = account.replace(':::', '')
+            else:
+                account = f'{account}:{shortuuid.uuid()}'
 
         record = self.redis_client.hget(
             redis_key,
@@ -142,9 +146,9 @@ if __name__ == "__main__":
         print(f'action: {action} error!\nUsage: init')
     else:
         maps = {
-            k: v for k, v in RedisStoreKeyConfig.__dict__.items() 
+            k: v for k, v in RedisStoreKeyConfig.__dict__.items()
             if not k.startswith('__')
-            }
+        }
         for key in maps.keys():
             REDIS_MODEL.redis_client.delete(key)
         print('reset redis end')
