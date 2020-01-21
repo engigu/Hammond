@@ -146,7 +146,7 @@ def notice():
 
     app.logger.info('title, way, content, key :::: %s %s %s %s' %
                     (title, way, content, key))
-    send_notice(way, title, content)
+    send_notice.delay(way, title, content)
     return ok()
 
 
@@ -169,7 +169,7 @@ def notice_test(ctype):
 
     app.logger.info('test send ::: title, way, content :::: %s %s %s' % (
         title, way, content))
-    send_notice(way, title, content)
+    send_notice.delay(way, title, content)
     return ok()
 
 
