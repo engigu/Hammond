@@ -12,12 +12,13 @@ class Config:
     BACKEND_REDIS_URI = f'redis://{REDIS_HOST}/2'
     API_SERVER_PORT = 9643  # flask api port
 
-    TEST_SEND_MSG_INTER_TIME = 1*60
+    TEST_SEND_MSG_INTER_TIME = 1 * 60
 
     # webauth 认证
-    HTTP_AUTH = {
-        'hammond': 'abc321'
-    }
+    HTTP_AUTH = {'hammond': 'abc321'}
+
+    # logs path
+    LOGS_PATH = f'/tmp/project_logs/hammond'
 
 
 class RedisStoreKeyConfig(Config):
@@ -36,3 +37,8 @@ class RedisStoreKeyConfig(Config):
 
     # string
     TEST_SEND_MSG_INTER_KEY = 'test-msg-next-time'
+
+
+if not os.path.exists(Config.LOGS_PATH):
+    os.makedirs(Config.LOGS_PATH)
+ 

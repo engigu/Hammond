@@ -6,7 +6,7 @@ services:
       dockerfile: docker/notice.dockerfile
     image: "notice-server"
     volumes: 
-      - .:/code
+      # - .:/code
     links:
       - redis
   
@@ -16,7 +16,8 @@ services:
       dockerfile: docker/celery.dockerfile
     image: "celery-server"
     volumes: 
-      - .:/code
+      # - .:/code
+      - /tmp/project_logs/hammond:/code/logs
     links:
       - redis
       
