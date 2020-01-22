@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: docker/notice.dockerfile
     image: "notice-server"
-    volumes: 
+    # volumes: 
       # - .:/code
     links:
       - redis
