@@ -1,10 +1,8 @@
 import datetime
 import json
-import logging
 from flask import Flask, render_template, jsonify, request
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_httpauth import HTTPBasicAuth
-from flask_socketio import SocketIO, emit
 
 from core.db import RedisModel
 from config import Config, RedisStoreKeyConfig
@@ -12,10 +10,8 @@ from core.defined import ConfigKey
 from celery_senders.sender import ALL_SENDERS, send_notice
 
 REDIS_MODEL = RedisModel(uri=Config.BACKEND_REDIS_URI)
-app = Flask(__name__, template_folder='./vue')
+app = Flask(__name__)
 auth = HTTPBasicAuth()
-
-socketio = SocketIO(app)
 
 USERS = {u: generate_password_hash(p) for u, p in Config.HTTP_AUTH.items()}
 
@@ -178,27 +174,10 @@ def notice_test(ctype):
     send_notice.delay(way, title, content)
     return ok()
 
-# 发送测试消息
-@app.route('/log.html', methods=['GET'])
-# @auth.login_required
-def log_test():
-    return render_template('log.html')
-
-@socketio.on('connect')
-def disconnect():
-    print("connect..")
-
-
-@socketio.on('leavepage')
-def leavepage(msg):
-    print("leavepage..", msg)
 
 def run():
     app.config['JSON_AS_ASCII'] = False
-    handler = logging.FileHandler('logs/flask.log', encoding='utf-8')
-    handler.setLevel(logging.DEBUG)
-    app.logger.addHandler(handler)
-    socketio.run(app, debug=True, host='0.0.0.0', port=Config.API_SERVER_PORT)
+    app.run(debug=True, host='0.0.0.0', port=Config.API_SERVER_PORT)
 
 
 if __name__ == '__main__':

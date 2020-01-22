@@ -33,3 +33,8 @@ def send_notice(way, title, content):
     logger.info('way: %r, title: %r, content: %r' % (way, title, content))
     sender = sender()
     sender.send(title, content)
+
+
+@app.task
+def test_celery():
+    logger.info('test result 66666')

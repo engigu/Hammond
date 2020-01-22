@@ -33,4 +33,5 @@ celery -A sender worker --loglevel=info
  - `http-auth`默认帐号密码`hammond` `abc321`
 
 ## TODO
+ - 日志展示和查看
  - 接入`dingtalk`
