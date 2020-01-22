@@ -18,4 +18,4 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositorie
 COPY . /code
 WORKDIR /code/celery_senders
 
-CMD celery -A sender worker --loglevel=info
+CMD celery -A sender worker --loglevel=info -f /tmp/project_logs/hammond/celery.log
